@@ -38,6 +38,15 @@ corpus = [dictionary.doc2bow(words) for words in words_list]
 # corpora.MmCorpus.serialize(output, corpus)
 print(corpus)
 
+tfidf_model = models.TfidfModel(corpus)
+tfidf_corpus = tfidf_model[corpus]
+
+from sklearn import svm
+svc = svm.SVC()
+# training_xは、BOWでベクトル化した各文書のリスト
+# training_yは、文書のカテゴリのリスト（ラベル）
+svc.fit(training_x, training_y)
+
 
 
 

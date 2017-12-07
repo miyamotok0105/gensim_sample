@@ -1,3 +1,4 @@
+
 # -*- coding: utf-8 -*-
 import os
 import MeCab
@@ -36,9 +37,26 @@ dictionary.compactify()
 #make_corpus
 corpus = [dictionary.doc2bow(words) for words in words_list]
 # corpora.MmCorpus.serialize(output, corpus)
-print(corpus)
 
+#LDA
+lda = models.ldamodel.LdaModel(corpus=corpus, id2word=dictionary, num_topics=2, iterations=200, passes=5)
+print(len(lda.print_topics(2)))
+print(lda.print_topics(2)[0])
+print(lda.print_topics(2)[1])
+print("===============")
 
+doc = "イベント"
+vec_bow = dictionary.doc2bow(doc.lower().split())
+vec_lda = lda[vec_bow]
+# print(len(vec_lda))
+# print("lda[corpus]", lda[corpus])
+index = similarities.MatrixSimilarity(lda[corpus])
+# print("vec_lda", vec_lda)
+# print("index",index)
 
-
+try:
+    sims = index[vec_lda]
+    print(list(enumerate(sims)))
+except:
+    print("error")
 
