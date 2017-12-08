@@ -15,78 +15,45 @@ from scipy.cluster.hierarchy import linkage, dendrogram;
 from scipy.spatial.distance import pdist;
 from matplotlib.pyplot import show;
 
-'''
- BoWモデルクラス
-'''
 class BoWModel:
-	'''
-	 コンストラクタ
-	'''
+
 	def __init__(self, dictionary):
 		self._dictionary = dictionary;
 
-	'''
-	 文章のBoW特徴ベクトルを返します。
-	'''
 	def to_feature_vec(self, text):
 		bow = self._dictionary.doc2bow(text);
 		return list(matutils.corpus2dense([bow], num_terms=len(self._dictionary)).T[0]);
 
-	'''
-	 内容を表示します。
-	'''
 	def show_topics(self, num_topics=-1):
 		print(self._dictionary)
 
-'''
- TF-IDFモデルクラス
-'''
 class TFIDFModel:
-	'''
-	 コンストラクタ
-	'''
+
 	def __init__(self, dictionary, datafiles):
 		self._dictionary = dictionary;
 		self._model = self._init_model(datafiles);
 
-	'''
-	 データファイル全体からTF-IDFモデルを生成します。
-	'''
 	def _init_model(self, datafiles):
 		corpus = [];
 		for datafile in datafiles:
 			corpus.extend([self._dictionary.doc2bow(line) for line in myutil.tokenize_file(datafile)]);
 		return models.TfidfModel(corpus);
 
-	'''
-	 文章のTF-IDF特徴ベクトルを返します。
-	'''
 	def to_feature_vec(self, text):
 		bow = self._dictionary.doc2bow(text);
 		tfidf = self._model[bow];
 		return list(matutils.corpus2dense([tfidf], num_terms=len(self._dictionary)).T[0]);
 
-	'''
-	 内容を表示します。
-	'''
 	def show_topics(self, num_topics=-1):
 		print(self._model)
 
-'''
- LSIモデルクラス
-'''
 class LSIModel:
-	'''
-	 コンストラクタ
-	'''
+
 	def __init__(self, dictionary, datafiles, num_topics=4):
 		self._dictionary = dictionary;
 		self._num_topics = num_topics;
 		self._model = self._init_model(datafiles);
 
-	'''
-	 データファイル全体からLSIモデルを生成します。
-	'''
 	def _init_model(self, datafiles):
 		corpus = [];
 		for datafile in datafiles:
@@ -94,37 +61,23 @@ class LSIModel:
 		tfidf = models.TfidfModel(corpus);
 		return models.LsiModel(corpus=tfidf[corpus], id2word=self._dictionary, num_topics=self._num_topics);
 
-	'''
-	 文章のLSI特徴ベクトルを返します。
-	'''
 	def to_feature_vec(self, text):
 		bow = self._dictionary.doc2bow(text);
 		lsi = self._model[bow];
 		return list(matutils.corpus2dense([lsi], num_terms=self._num_topics).T[0]);
 
-	'''
-	 内容を表示します。
-	'''
 	def show_topics(self, num_topics=-1):
 		topics = self._model.show_topics(num_topics=num_topics);
 		for i in range(len(topics)):
 			print("#%d: %s" % (i, topics[i]))
 
-'''
- LDAモデルクラス
-'''
 class LDAModel:
-	'''
-	 コンストラクタ
-	'''
+
 	def __init__(self, dictionary, datafiles, num_topics=4):
 		self._dictionary = dictionary;
 		self._num_topics = num_topics;
 		self._model = self._init_model(datafiles);
 
-	'''
-	 データファイル全体からLDAモデルを生成します。
-	'''
 	def _init_model(self, datafiles):
 		corpus = [];
 		for datafile in datafiles:
@@ -132,54 +85,34 @@ class LDAModel:
 		tfidf = models.TfidfModel(corpus);
 		return models.LdaModel(corpus=tfidf[corpus], id2word=self._dictionary, num_topics=self._num_topics);
 
-	'''
-	 文章のLDA特徴ベクトルを返します。
-	'''
 	def to_feature_vec(self, text):
 		bow = self._dictionary.doc2bow(text);
 		lsa = self._model[bow];
 		return list(matutils.corpus2dense([lsa], num_terms=self._num_topics).T[0]);
 
-	'''
-	 内容を表示します。
-	'''
 	def show_topics(self, num_topics=-1):
 		topics = self._model.show_topics(num_topics=num_topics);
 		for i in range(len(topics)):
 			print("#%d: %s" % (i, topics[i]))
 
-'''
- HDP(Hierarchical Dirichlet Process)モデルクラス
-'''
 class HDPModel:
-	'''
-	 コンストラクタ
-	'''
+
 	def __init__(self, dictionary, datafiles, num_topics=4):
 		self._dictionary = dictionary;
 		self._num_topics = num_topics;
 		self._model = self._init_model(datafiles);
 
-	'''
-	 データファイル全体からHDPモデルを生成します。
-	'''
 	def _init_model(self, datafiles):
 		corpus = [];
 		for datafile in datafiles:
 			corpus.extend([self._dictionary.doc2bow(line) for line in myutil.tokenize_file(datafile)]);
 		return models.LdaModel(corpus=corpus, id2word=self._dictionary, num_topics=self._num_topics);
 
-	'''
-	 文章のHDP特徴ベクトルを返します。
-	'''
 	def to_feature_vec(self, text):
 		bow = self._dictionary.doc2bow(text);
 		hdp = self._model[bow];
 		return list(matutils.corpus2dense([hdp], num_terms=self._num_topics).T[0]);
 
-	'''
-	 内容を表示します。
-	'''
 	def show_topics(self, num_topics=-1):
 		topics = self._model.show_topics(num_topics=num_topics);
 		for i in range(len(topics)):
