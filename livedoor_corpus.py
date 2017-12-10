@@ -186,11 +186,15 @@ if __name__ == '__main__':
 
     filename = 'livedoor_svm_model'
     pickle.dump(svc, open(filename, 'wb'))
-    
+
     print(svc.fit(training_x, training_y).score(item_test_list, key_test_list))
-    #.score(item_test_list, key_test_list)
-    print("predict !")
-    print(svc.predict(item_test_list))
+
+    from sklearn.ensemble import RandomForestClassifier
+    random_forest = RandomForestClassifier()
+    print(random_forest.fit(training_x, training_y).score(item_test_list, key_test_list))
+    
+    filename = 'livedoor_forest_model'
+    pickle.dump(svc, open(filename, 'wb'))
 
 
     #-----------------------------------------------
