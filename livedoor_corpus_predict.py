@@ -4,6 +4,7 @@ import sys
 import re
 from gensim import corpora, matutils
 import MeCab
+import time
 
 DATA_DIR_PATH = './data/text/'
 DICTIONARY_FILE_NAME = 'livedoordic.txt'
@@ -162,36 +163,32 @@ def get_dictionary(create_flg=False, file_name=DICTIONARY_FILE_NAME):
 
 if __name__ == '__main__':
 
+    start = time.time()
     dictionary = get_dictionary(create_flg=False)
-    key_train_list, item_train_list = [], []
+
+    elapsed_time = time.time() - start
+    print ("elapsed_time:{0}".format(elapsed_time) + "[sec]")
+
     key_test_list, item_test_list = [], []
-    for line in open('livedoor_train_c4.txt', 'r'):
-        r = re.split(' , ', line)
-        key_train_list.append(re.search('[0-9]', r[0]).group(0))
-        item_train_list.append(get_vector(dictionary, r[1]))
     for line in open('livedoor_test_c4.txt', 'r'):
         r = re.split(' , ', line)
         key_test_list.append(re.search('[0-9]', r[0]).group(0))
         item_test_list.append(get_vector(dictionary, r[1]))
 
+    print("pickle!")
+    start = time.time()
+
     import pickle
     from sklearn import svm
     svc = svm.SVC()
-    training_x = item_train_list
-    training_y = key_train_list
-
-    # # training_xは、BOWでベクトル化した各文書のリスト
-    # # training_yは、文書のカテゴリのリスト（ラベル）
-    svc.fit(training_x, training_y)
-
     filename = 'livedoor_svm_model'
-    pickle.dump(svc, open(filename, 'wb'))
+    svc = pickle.load(open(filename, 'rb'))
     
-    print(svc.fit(training_x, training_y).score(item_test_list, key_test_list))
-    #.score(item_test_list, key_test_list)
     print("predict !")
     print(svc.predict(item_test_list))
 
+    elapsed_time = time.time() - start
+    print ("elapsed_time:{0}".format(elapsed_time) + "[sec]")
 
     #-----------------------------------------------
     # allLines = open("data/dokujo1.txt").read()
