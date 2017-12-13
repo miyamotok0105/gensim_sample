@@ -1,5 +1,17 @@
 # gensim_sample
 
+- 4カテゴリ分類
+
+    python livedoor_corpus.py
+
+svm結果    
+0.818181818182 %    
+ランダムフォレスト結果    
+0.909090909091 %    
+
+
+メモ    
+
     01:mecab
     02:gensim corpora
     03:gensim bag-of-words + scikitlearn svm

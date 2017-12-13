@@ -140,8 +140,8 @@ if __name__ == '__main__':
     print(random_forest.fit(training_x, training_y).score(item_test_list, key_test_list))
     
     filename = 'livedoor_forest_model'
-    pickle.dump(svc, open(filename, 'wb'))
-
+    pickle.dump(random_forest, open(filename, 'wb'))
+    
 
     #-----------------------------------------------
     # allLines = open("data/dokujo1.txt").read()
