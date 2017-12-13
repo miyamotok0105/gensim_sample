@@ -12,4 +12,8 @@
 
 # 参考
 
-https://github.com/yasunori/Random-Forest-Example/blob/master/
+https://github.com/yasunori/Random-Forest-Example/blob/master/    
+
+supervised LDA    
+→マージ待ち    
+https://github.com/RaRe-Technologies/gensim/issues/121    
