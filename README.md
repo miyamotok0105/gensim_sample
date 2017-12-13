@@ -1,5 +1,8 @@
 # gensim_sample
 
+rondhuit datasetよりニュースコーパスをダウンロード。    
+https://www.rondhuit.com/download.html    
+
 - 4カテゴリ分類
 
     python livedoor_corpus.py
