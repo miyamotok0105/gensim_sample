@@ -2,14 +2,15 @@
 import os
 import sys
 import re
+import time
+start = time.time()
+
 from gensim import corpora, matutils
 import MeCab
-from sklearn.model_selection import train_test_split
 
 DATA_DIR_PATH = './data/text/'
 DICTIONARY_FILE_NAME = 'livedoordic.txt'
 mecab = MeCab.Tagger('mecabrc')
-
 
 def get_class_id(file_name):
     dir_list = get_dir_list()
@@ -36,10 +37,12 @@ def tokenize(text):
             yield node.surface.lower()
         node = node.next
 
+
 def check_stopwords(word):
-    if re.search(r'^[0-9]+$', word):
+    if re.search(r'^[0-9]+$', word):  # 数字だけ
         return True
     return False
+
 
 def get_words(contents):
     ret = []
@@ -47,12 +50,15 @@ def get_words(contents):
         ret.append(get_words_main(content))
     return ret
 
+
 def get_words_main(content):
     return [token for token in tokenize(content) if not check_stopwords(token)]
 
+
 def filter_dictionary(dictionary):
-    dictionary.filter_extremes(no_below=20, no_above=0.3) 
+    dictionary.filter_extremes(no_below=20, no_above=0.3)  # この数字はあとで変えるかも
     return dictionary
+
 
 def get_contents():
     dir_list = get_dir_list()
@@ -82,7 +88,6 @@ def get_files():
             if dir_name in file_name:  # LICENSE.txt とかを除くためです。。
                 print(dir_name)
                 # ret[file_name] = get_file_content(DATA_DIR_PATH + dir_name + '/' + file_name)
-
     # return ret
 
 def get_vector(dictionary, content):
@@ -108,75 +113,45 @@ def get_dictionary(create_flg=False, file_name=DICTIONARY_FILE_NAME):
 
 
 if __name__ == '__main__':
-
-    dictionary = get_dictionary(create_flg=False)
-    key_list, item_list = [], []
-    for line in open('livedoor_all_c4.txt', 'r'):
-        r = re.split(' , ', line)
-        key_list.append(re.search('[0-9]', r[0]).group(0))
-        item_list.append(get_vector(dictionary, r[1]))
-
-    key_train_list, item_train_list = [], []
-    key_test_list, item_test_list = [], []
-    key_train_list, key_test_list, item_train_list, item_test_list = train_test_split(key_list, item_list, test_size=0.33, random_state=None)
     
-    print("train======")
-    print(len(key_train_list))
-    print(len(item_train_list))
-    print("test======")
-    print(len(key_test_list))
-    print(len(item_test_list))
-    print(key_train_list[0])
-    print(key_train_list[1])
-    print(key_train_list[2])
-    print(key_test_list[0])
-    print(key_test_list[1])
-    print(key_test_list[2])
-
-
+    dictionary = get_dictionary(create_flg=False)
+    key_test_list, item_test_list = [], []
+    text_test_list = []
+    for line in open('livedoor_test_c4.txt', 'r'):
+        r = re.split(' , ', line)
+        key_test_list.append(re.search('[0-9]', r[0]).group(0))
+        item_test_list.append(get_vector(dictionary, r[1]))
+        text_test_list.append(r[1])
 
     import pickle
-    from sklearn import svm
-    svc = svm.SVC()
-    training_x = item_train_list
-    training_y = key_train_list
+    from sklearn.cluster import KMeans
 
-    # # training_xは、BOWでベクトル化した各文書のリスト
-    # # training_yは、文書のカテゴリのリスト（ラベル）
-    svc.fit(training_x, training_y)
+    print("predict !")
 
-    filename = 'livedoor_svm_model'
-    pickle.dump(svc, open(filename, 'wb'))
+    print("key:", key_test_list)
+    filename = 'livedoor_kmeans2_model'
+    KMeans = pickle.load(open(filename, 'rb'))
+    print(KMeans.predict(item_test_list))
 
-    print(svc.fit(training_x, training_y).score(item_test_list, key_test_list))
+    filename = 'livedoor_kmeans3_model'
+    KMeans = pickle.load(open(filename, 'rb'))
+    print(KMeans.predict(item_test_list))
 
-    from sklearn.ensemble import RandomForestClassifier
-    random_forest = RandomForestClassifier()
-    print(random_forest.fit(training_x, training_y).score(item_test_list, key_test_list))
+    filename = 'livedoor_kmeans4_model'
+    KMeans = pickle.load(open(filename, 'rb'))
+    print(KMeans.predict(item_test_list))
     
-    filename = 'livedoor_forest_model'
-    pickle.dump(random_forest, open(filename, 'wb'))
-    
-    # from sklearn.cluster import KMeans
-    # kmeans = KMeans(n_clusters=2, random_state=0)
-    # print(kmeans.fit(training_x).score(item_test_list, key_test_list))
-    # filename = 'livedoor_kmeans2_model'
-    # pickle.dump(kmeans, open(filename, 'wb'))
-
-    # kmeans = KMeans(n_clusters=3, random_state=0)
-    # print(kmeans.fit(training_x).score(item_test_list, key_test_list))
-    # filename = 'livedoor_kmeans3_model'
-    # pickle.dump(kmeans, open(filename, 'wb'))
-
-    # kmeans = KMeans(n_clusters=4, random_state=0)
-    # print(kmeans.fit(training_x).score(item_test_list, key_test_list))
-    # filename = 'livedoor_kmeans4_model'
-    # pickle.dump(kmeans, open(filename, 'wb'))
-
-    # kmeans = KMeans(n_clusters=5, random_state=0)
-    # print(kmeans.fit(training_x).score(item_test_list, key_test_list))
     # filename = 'livedoor_kmeans5_model'
-    # pickle.dump(kmeans, open(filename, 'wb'))
+    # KMeans = pickle.load(open(filename, 'rb'))
+    # print(KMeans.predict(item_test_list))
+    
+    print("================")
+    for (i, k) in zip(range(11) ,KMeans.predict(item_test_list)):
+        print(k)
+        print(text_test_list[i])
+
+    elapsed_time = time.time() - start
+    print ("elapsed_time:{0}".format(elapsed_time) + "[sec]")
 
     #-----------------------------------------------
     # allLines = open("data/dokujo1.txt").read()
