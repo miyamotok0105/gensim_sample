@@ -1,7 +1,18 @@
 # gensim_sample
 
+ちょこっとパスとか修正しないと動かないと思います。    
+
+
 rondhuit datasetよりニュースコーパスをダウンロード。    
 https://www.rondhuit.com/download.html    
+
+```
+wget https://www.rondhuit.com/download/ldcc-20140209.tar.gz
+tar -zxvf ldcc-20140209.tar.gz
+python corpus_fasttext.py
+mv text data
+```
+
 
 - 4カテゴリ分類(学習)
 
